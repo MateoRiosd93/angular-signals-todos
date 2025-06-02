@@ -1,0 +1,33 @@
+<main class="w-screen flex flex-col items-center mt-3 gap-12">
+    <p class="text-5xl text-white font-extralight text-center">TODO list! </p>
+    @if (todosStore.loading()) {
+    <p>Loading todos...</p>
+    }
+
+    @if (!todosStore.loading() || !todosStore.error()) {
+    <ul class="max-w-3xl list bg-base-100 rounded-box shadow-md">
+        <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">This is a todos for the user.</li>
+        @for (todo of todosStore.todos(); track todo) {
+        <li class="list-row">
+            <div class="text-4xl font-thin opacity-30 tabular-nums">{{todo.id.toString().length === 1 ? `0${todo.id}` :
+                todo.id}}</div>
+            <div class="list-col-grow">
+                <div>{{todo.title}}</div>
+                <div class="text-xs uppercase font-semibold opacity-60">{{todo.completed ? 'Completed' : 'Pending'}}</div>
+            </div>
+            <button class="btn btn-square btn-ghost">
+                <svg class="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <g stroke-linejoin="round" stroke-linecap="round" stroke-width="2" fill="none"
+                        stroke="currentColor">
+                        <path d="M6 3L20 12 6 21 6 3z"></path>
+                    </g>
+                </svg>
+            </button>
+        </li>
+        }
+        @empty {
+        <p>Not found todos</p>
+        }
+    </ul>
+    }
+</main>
