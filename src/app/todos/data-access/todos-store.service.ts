@@ -47,6 +47,21 @@ export class TodosStore {
         })
     }
 
+    checkTodo(id: number) {
+        const newTodos = this.todos().map(todo => {
+            if (todo.id === id) {
+                return {
+                    ...todo,
+                    completed: !todo.completed
+                }
+            }
+            return todo
+        })
+
+
+        this.state.update(state => ({ ...state, todos: [...newTodos] }))
+    }
+
     createTodo(todo: Todo) {
         this.todosService.createTodo(todo).subscribe({
             next: todo => {
@@ -90,8 +105,6 @@ export class TodosStore {
     editTodo(todo: Todo) {
         this.todosService.editTodo(todo).subscribe({
             next: response => {
-                console.log(response);
-
                 const newTodos = this.state().todos.map(element => {
                     if (element.id === response.id) {
                         return {
