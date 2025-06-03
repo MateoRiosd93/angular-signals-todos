@@ -16,8 +16,8 @@
     @if (!todosStore.loading() || !todosStore.error()) {
     <ul class="max-w-3xl list bg-base-100 rounded-box shadow-md">
         <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">This is a todos for the user.</li>
-        @for (todo of todosStore.todos(); track todo) {
-        <li class="list-row hover:bg-gray-600/5 hover:scale-101 hover:rounded-none transition" onkeypress
+        @for (todo of todosStore.todos(); track todo.id) {
+        <li class="w-[637px] list-row hover:bg-gray-600/5 hover:scale-101 hover:rounded-none transition" onkeypress
             (click)="loadTodoForEdit(todo)">
             <div class="text-4xl font-thin opacity-30 tabular-nums">{{todo.id.toString().length === 1 ? `0${todo.id}` :
                 todo.id}}</div>
@@ -39,7 +39,9 @@
         </li>
         }
         @empty {
-        <p>Not found todos</p>
+        <li class="w-[637px] list-row flex justify-center items-center">
+            <p class="text-center font-medium">Not found TODOS</p>
+        </li>
         }
     </ul>
     }

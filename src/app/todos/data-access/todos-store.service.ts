@@ -12,70 +12,64 @@ interface TodosState {
 export class TodosStore {
     private readonly todosService = inject(TodosService)
 
-    // Creamos nuestro signal para manejar el state de los todos
     private readonly state = signal<TodosState>({
         todos: [],
         loading: false,
         error: false
     })
 
-    // Creamos computed signals para acceder a las propiedades del state
+    // Copia original de todos (sin filtro)
+    private readonly copyOriginalTodos = signal<Todo[]>([])
+
+    // Guardamos el término de filtro actual
+    private readonly currentFilterTerm = signal<string>('')
+
+    // Computed para exponer partes del estado
     readonly todos = computed(() => this.state().todos)
     readonly loading = computed(() => this.state().loading)
     readonly error = computed(() => this.state().error)
 
-    // Acciones para manipular el TodosStore
+    // Acciones
     getAllTodos() {
         this.state.update(state => ({ ...state, loading: true }))
 
         this.todosService.getAllTodos().subscribe({
             next: todos => {
+                this.copyOriginalTodos.set(todos)
+                this.currentFilterTerm.set('')
+                this.applyFilter('')
                 this.state.update(state => ({
                     ...state,
                     loading: false,
-                    todos
+                    error: false
                 }))
             },
             error: error => {
                 this.state.update(state => ({
                     ...state,
+                    loading: false,
                     error: true
                 }))
-
                 console.error(error)
             }
         })
     }
 
     checkTodo(id: number) {
-        const newTodos = this.todos().map(todo => {
-            if (todo.id === id) {
-                return {
-                    ...todo,
-                    completed: !todo.completed
-                }
-            }
-            return todo
-        })
-
-
-        this.state.update(state => ({ ...state, todos: [...newTodos] }))
+        const updated = this.copyOriginalTodos().map(todo =>
+            todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        )
+        this.updateTodos(updated)
     }
 
     createTodo(todo: Todo) {
         this.todosService.createTodo(todo).subscribe({
-            next: todo => {
-                this.state.update(state => ({
-                    ...state,
-                    todos: [...state.todos, todo]
-                }))
+            next: created => {
+                const updated = [...this.copyOriginalTodos(), created]
+                this.updateTodos(updated)
             },
             error: error => {
-                this.state.update(state => ({
-                    ...state,
-                    error: true
-                }))
-
+                this.state.update(state => ({ ...state, error: true }))
                 console.error(error)
             }
         })
@@ -84,19 +78,11 @@ export class TodosStore {
     deleteTodo(id: number) {
         this.todosService.deleteTodo(id).subscribe({
             next: () => {
-                const todos = this.state().todos.filter(todo => todo.id !== id)
-
-                this.state.update(state => ({
-                    ...state,
-                    todos
-                }))
+                const updated = this.copyOriginalTodos().filter(todo => todo.id !== id)
+                this.updateTodos(updated)
             },
             error: error => {
-                this.state.update(state => ({
-                    ...state,
-                    error: true
-                }))
-
+                this.state.update(state => ({ ...state, error: true }))
                 console.error(error)
             }
         })
@@ -104,29 +90,37 @@ export class TodosStore {
 
     editTodo(todo: Todo) {
         this.todosService.editTodo(todo).subscribe({
-            next: response => {
-                const newTodos = this.state().todos.map(element => {
-                    if (element.id === response.id) {
-                        return {
-                            ...response
-                        }
-                    }
-                    return element
-                })
-
-                this.state.update(state => ({
-                    ...state,
-                    todos: [...newTodos]
-                }))
+            next: updatedTodo => {
+                const updated = this.copyOriginalTodos().map(todo =>
+                    todo.id === updatedTodo.id ? { ...updatedTodo } : todo
+                )
+                this.updateTodos(updated)
             },
             error: error => {
-                this.state.update(state => ({
-                    ...state,
-                    error: true
-                }))
-
+                this.state.update(state => ({ ...state, error: true }))
                 console.error(error)
             }
         })
+    }
+
+    filterTodos(term: string) {
+        this.currentFilterTerm.set(term)
+        this.applyFilter(term)
+    }
+
+    // Aplica el filtro al estado usando la copia original
+    private applyFilter(term: string) {
+        const original = this.copyOriginalTodos()
+        const filtered = term.trim()
+            ? original.filter(todo => todo.title.toLowerCase().includes(term.toLowerCase()))
+            : original
+
+        this.state.update(state => ({ ...state, todos: filtered }))
+    }
+
+    // Actualiza la copia original y reaplica el filtro activo
+    private updateTodos(updated: Todo[]) {
+        this.copyOriginalTodos.set(updated)
+        this.applyFilter(this.currentFilterTerm())
     }
 }

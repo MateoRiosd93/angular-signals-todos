@@ -3,6 +3,7 @@ import { TodosStore } from '../../data-access/todos-store.service';
 import { ReactiveFormsModule, FormBuilder, FormControl, Validators } from '@angular/forms'
 import { Todo } from '../../models/todo';
 import { generateRandomId } from '../../../shared/utils/generate-random-id';
+import { debounce, debounceTime } from 'rxjs';
 
 interface TodoForm {
     title: FormControl<string>
@@ -27,6 +28,17 @@ export class TodoListComponent implements OnInit {
 
     ngOnInit() {
         this.todosStore.getAllTodos()
+        this.handlerChangue()
+    }
+
+    handlerChangue(){
+        this.form.controls.title.valueChanges
+            .pipe(debounceTime(300))
+            .subscribe({
+                next: term => {
+                    this.todosStore.filterTodos(term)
+                }
+            })
     }
 
     checkTodo(id: number, event: Event) {
