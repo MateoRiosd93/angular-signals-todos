@@ -34,9 +34,7 @@ export class TodosStore {
                     ...state,
                     loading: false,
                     todos
-                }))
-
-                console.log(todos);
+                })) 
             },
             error: error => {
                 this.state.update(state => ({
@@ -48,4 +46,6 @@ export class TodosStore {
             }
         })
     }
+
+    
 }
