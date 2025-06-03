@@ -31,8 +31,7 @@ export class TodoListComponent implements OnInit {
 
     checkTodo(id: number, event: Event) {
         event.stopPropagation()
-
-        console.log(`${id} a completar`)
+        this.todosStore.checkTodo(id)
     }
 
     createTodo() {
