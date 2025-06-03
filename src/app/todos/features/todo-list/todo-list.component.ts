@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { TodosStore } from '../../data-access/todos-store.service';
 import { ReactiveFormsModule, FormBuilder, FormControl, Validators } from '@angular/forms'
 import { Todo } from '../../models/todo';
+import { generateRandomId } from '../../../shared/utils/generate-random-id';
 
 interface TodoForm {
     title: FormControl<string>
@@ -28,7 +29,9 @@ export class TodoListComponent implements OnInit {
         this.todosStore.getAllTodos()
     }
 
-    checkTodo(id: number) {
+    checkTodo(id: number, event: Event) {
+        event.stopPropagation()
+
         console.log(`${id} a completar`)
     }
 
@@ -37,14 +40,14 @@ export class TodoListComponent implements OnInit {
 
         const newTodo: Todo = {
             userId: 1,
-            id: this.todoEdit.id ?? this.todosStore.todos().length + 1,
+            id: this.todoEdit.id ?? generateRandomId(),
             title: this.form.value.title ?? '',
             completed: this.todoEdit.completed ?? false
         }
 
         this.form.reset()
 
-        if(this.isEditTodo){
+        if (this.isEditTodo) {
             this.todosStore.editTodo(newTodo)
             this.isEditTodo = false
             this.todoEdit = {} as Todo
@@ -54,12 +57,17 @@ export class TodoListComponent implements OnInit {
         this.todosStore.createTodo(newTodo)
     }
 
-    loadTodoForEdit(todo: Todo){
+    loadTodoForEdit(todo: Todo) {
         this.form.patchValue({
             title: todo.title
         })
 
         this.isEditTodo = true
         this.todoEdit = todo
+    }
+
+    deleteTodo(id: number, event: Event) {
+        event.stopPropagation()
+        this.todosStore.deleteTodo(id)
     }
 }
