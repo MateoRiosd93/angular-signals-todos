@@ -4,10 +4,11 @@
     <p>Loading todos...</p>
     }
 
-    <form class="w-[637px] mx-auto">
+    <form [formGroup]="form" class="w-[637px] mx-auto">
         <fieldset class="w-full">
             <legend class="text-sm text-gray-400 mb-1">What is your todo?</legend>
-            <input type="text" class="input w-full" placeholder="Type here..." />
+            <input formControlName="title" type="text" class="input w-full" placeholder="Type here..."
+                (keydown.enter)="createTodo()" />
         </fieldset>
     </form>
 
@@ -16,7 +17,8 @@
     <ul class="max-w-3xl list bg-base-100 rounded-box shadow-md">
         <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">This is a todos for the user.</li>
         @for (todo of todosStore.todos(); track todo) {
-        <li class="list-row hover:bg-gray-600/5 hover:scale-101 hover:rounded-none transition">
+        <li class="list-row hover:bg-gray-600/5 hover:scale-101 hover:rounded-none transition" onkeypress
+            (click)="loadTodoForEdit(todo)">
             <div class="text-4xl font-thin opacity-30 tabular-nums">{{todo.id.toString().length === 1 ? `0${todo.id}` :
                 todo.id}}</div>
             <div class="list-col-grow">
@@ -25,8 +27,8 @@
                 </div>
             </div>
             <div class="flex justify-center items-center gap-3">
-                <input type="checkbox" [checked]="todo.completed" class="checkbox checkbox-sm checkbox-success"
-                    (click)="checkTodo(todo.id)" />
+                <input type="checkbox" onkeypress [checked]="todo.completed"
+                    class="checkbox checkbox-sm checkbox-success" (click)="checkTodo(todo.id)" />
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 27 27" stroke-width="1.5"
                     stroke="currentColor" class="size-6 cursor-pointer hover:text-gray-400 transition">
                     <path stroke-linecap="round" stroke-linejoin="round"
