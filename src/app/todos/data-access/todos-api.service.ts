@@ -17,7 +17,11 @@ export class TodosService {
     }
 
     createTodo(todo: Todo) {
-        return this.httpClient.post(`${this.BASE_URL}/todos`, todo)
+        return this.httpClient.post<Todo>(`${this.BASE_URL}/todos`, todo)
+    }
+
+    editTodo(todo: Todo) {
+        this.httpClient.put<Todo>(`${this.BASE_URL}/todos/${todo.id}`, todo)
     }
 
     deleteTodo(id: number) {

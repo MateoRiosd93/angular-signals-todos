@@ -8,7 +8,7 @@ interface TodosState {
     error: boolean
 }
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class TodosStore {
     private readonly todosService = inject(TodosService)
 
@@ -24,9 +24,9 @@ export class TodosStore {
     readonly loading = computed(() => this.state().loading)
     readonly error = computed(() => this.state().error)
 
-    // Acciones del store
-    getAllTodos(){
-        this.state.update(state => ({...state, loading: true}))
+    // Acciones para manipular el TodosStore
+    getAllTodos() {
+        this.state.update(state => ({ ...state, loading: true }))
 
         this.todosService.getAllTodos().subscribe({
             next: todos => {
@@ -34,7 +34,7 @@ export class TodosStore {
                     ...state,
                     loading: false,
                     todos
-                })) 
+                }))
             },
             error: error => {
                 this.state.update(state => ({
@@ -47,5 +47,45 @@ export class TodosStore {
         })
     }
 
-    
+    createTodo(todo: Todo) {
+        this.todosService.createTodo(todo).subscribe({
+            next: todo => {
+                this.state.update(state => ({
+                    ...state,
+                    todos: [...state.todos, todo]
+                }))
+            },
+            error: error => {
+                this.state.update(state => ({
+                    ...state,
+                    error: true
+                }))
+
+                console.error(error)
+            }
+        })
+    }
+
+    deleteTodo(id: number) {
+        this.todosService.deleteTodo(id).subscribe({
+            next: () => {
+                const todos = this.state().todos.filter(todo => todo.id !== id)
+
+                this.state.update(state => ({
+                    ...state,
+                    todos
+                }))
+            },
+            error: error => {
+                this.state.update(state => ({
+                    ...state,
+                    error: true
+                }))
+
+                console.error(error)
+            }
+        })
+    }
+
+
 }
