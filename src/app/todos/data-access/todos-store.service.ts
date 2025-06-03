@@ -87,5 +87,33 @@ export class TodosStore {
         })
     }
 
+    editTodo(todo: Todo) {
+        this.todosService.editTodo(todo).subscribe({
+            next: response => {
+                console.log(response);
 
+                const newTodos = this.state().todos.map(element => {
+                    if (element.id === response.id) {
+                        return {
+                            ...response
+                        }
+                    }
+                    return element
+                })
+
+                this.state.update(state => ({
+                    ...state,
+                    todos: [...newTodos]
+                }))
+            },
+            error: error => {
+                this.state.update(state => ({
+                    ...state,
+                    error: true
+                }))
+
+                console.error(error)
+            }
+        })
+    }
 }

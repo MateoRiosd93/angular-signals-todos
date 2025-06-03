@@ -21,7 +21,6 @@ export class TodosService {
     }
 
     editTodo(todo: Todo) {
-        console.log(todo);
         return this.httpClient.put<Todo>(`${this.BASE_URL}/todos/${todo.id}`, todo)
     }
 
